@@ -161,10 +161,10 @@ class QueuedTask extends AppModel {
 	 * failure_message field
 	 */
 	public function markJobFailed($id, $failureMessage = null) {
-		
+		$db =& $this->getDataSource();
 		return ($this->updateAll(array(
 			'failed' => "failed + 1",
-			'failure_message' => $failureMessage
+			'failure_message' => $db->value($failureMessage, 'failure_message')
 		), array(
 			'id' => $id
 		)));
