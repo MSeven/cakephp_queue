@@ -404,5 +404,14 @@ class QueuedTaskTestCase extends CakeTestCase {
 		$this->assertEqual($progress[2]['status'], 'IN_PROGRESS');
 	}
 
+	public function testMarkJobFailed() {
+		$this->QueuedTask->createJob('dummytask', null);
+		$id = $this->QueuedTask->id;
+		$expected = 'Timeout: 100';
+		$this->QueuedTask->markJobFailed($id, $expected);
+		$result = $this->QueuedTask->field('failure_message');
+		$this->assertEqual($result, $expected);
+	}
+
 }
 ?>
