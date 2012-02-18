@@ -7,7 +7,7 @@
  * @license http://www.opensource.org/licenses/mit-license.php The MIT License
  * @link http://github.com/MSeven/cakephp_queue
  */
-class queueShell extends Shell {
+class QueueShell extends Shell {
 	public $uses = array(
 		'Queue.QueuedTask'
 	);
@@ -67,27 +67,28 @@ class queueShell extends Shell {
 	public function help() {
 		$this->out('CakePHP Queue Plugin:');
 		$this->hr();
-		$this->out('Usage:');
-		$this->out('	cake queue help');
-		$this->out('		-> Display this Help message');
-		$this->out('	cake queue add <taskname>');
-		$this->out('		-> Try to call the cli add() function on a task');
-		$this->out('		-> tasks may or may not provide this functionality.');
+		$this->out('Information goes here.');
+		$this->hr();
+		$this->out('Usage: cake queue <command> <arg1> <arg2>...');
+		$this->hr();
+		$this->out('Commands:');
+		$this->out('	queue help');
+		$this->out('		shows this help message.', 2);
+		$this->out('	queue add <taskname>');
+		$this->out('		tries to call the cli `add()` function on a task.');
+		$this->out('		tasks may or may not provide this functionality.', 2);
 		$this->out('	cake queue runworker [--verbose]');
-		$this->out('		-> run a queue worker, which will look for a pending task it can execute.');
-		$this->out('		-> the worker will always try to find jobs matching its installed Tasks');
-		$this->out('		-> see "Available Tasks" below.');
-		$this->out('	cake queue stats');
-		$this->out('		-> Display some general Statistics.');
-		$this->out('	cake queue clean');
-		$this->out('		-> Manually call cleanup function to delete task data of completed tasks.');
-		$this->out('Notes:');
-		$this->out('	<taskname> may either be the complete classname (eg. queue_example)');
-		$this->out('	or the shorthand without the leading "queue_" (eg. example)');
-		$this->out('Available Tasks:');
-		foreach ($this->taskNames as $loadedTask) {
-			$this->out('	->' . $loadedTask);
-		}
+		$this->out('		run a queue worker, which will look for a pending task it can execute.');
+		$this->out('		the worker will always try to find jobs matching its installed tasks.');
+		$this->out('		see "Available tasks" below.', 2);
+		$this->out('	queue stats');
+		$this->out('		display some general statistics.', 2);
+		$this->out('	queue clean');
+		$this->out('		manually call cleanup function to delete task data of completed tasks.', 2);
+		$this->out('Note:');
+		$this->out('	<taskname> may either be the complete classname (eg. `queue_example`)');
+		$this->out('	or the shorthand without the leading "queue_" (eg. `example`).', 2);
+		$this->_listTasks();
 	}
 
 	/**
@@ -97,20 +98,18 @@ class queueShell extends Shell {
 	 */
 	public function add() {
 		if (count($this->args) < 1) {
-			$this->out('Please call like this:');
-			$this->out('       cake queue add <taskname>');
+			$this->out('Usage:');
+			$this->out('       cake queue add <taskname>', 2);
+			$this->_listTasks();
 		} else {
-			
 			if (in_array($this->args[0], $this->taskNames)) {
 				$this->{$this->args[0]}->add();
 			} elseif (in_array('queue_' . $this->args[0], $this->taskNames)) {
 				$this->{'queue_' . $this->args[0]}->add();
 			} else {
-				$this->out('Error: Task not Found: ' . $this->args[0]);
-				$this->out('Available Tasks:');
-				foreach ($this->taskNames as $loadedTask) {
-					$this->out(' * ' . $loadedTask);
-				}
+				$this->out('Error:');
+				$this->out('       Task not found: ' . $this->args[0], 2);
+				$this->_listTasks();
 			}
 		}
 	}
@@ -241,6 +240,16 @@ class queueShell extends Shell {
 		}
 		return $this->taskConf;
 	}
+/**
+ * Output a list of available tasks.
+ */
+	protected function _listTasks() {
+		$this->out('Available tasks:');
+		foreach ($this->taskNames as $loadedTask) {
+			$this->out('	- ' . $loadedTask);
+		}
+	}
+	
 	function out($str='') {
 		$str = date('Y-m-d H:i:s').' '.$str;
 		return parent::out($str);
