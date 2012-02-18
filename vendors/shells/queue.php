@@ -229,5 +229,10 @@ class queueShell extends Shell {
 		}
 		return $this->taskConf;
 	}
+	function out($str='') {
+		$str = date('Y-m-d H:i:s').' '.$str;
+		return parent::out($str);
+	}
+
 }
 ?>
