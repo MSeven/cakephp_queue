@@ -8,6 +8,8 @@
  * @link http://github.com/MSeven/cakephp_queue
  */
 class QueuedTask extends AppModel {
+
+	var $useDbConfig = 'central';
 	
 	public $name = 'QueuedTask';
 	
