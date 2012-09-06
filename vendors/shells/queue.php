@@ -256,4 +256,3 @@ class QueueShell extends Shell {
 	}
 
 }
-?>

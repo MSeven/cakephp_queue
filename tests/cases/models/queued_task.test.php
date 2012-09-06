@@ -414,4 +414,3 @@ class QueuedTaskTestCase extends CakeTestCase {
 	}
 
 }
-?>
