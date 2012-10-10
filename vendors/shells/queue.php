@@ -1,4 +1,5 @@
 <?php
+declare(ticks = 1);
 
 /**
  * @author MGriesbach@gmail.com
@@ -21,6 +22,8 @@ class QueueShell extends Shell {
 	private $taskConf;
 
 	protected $_verbose = false;
+
+	private $exit;
 
 	/**
 	 * Overwrite shell initialize to dynamically load all Queue Related Tasks.
@@ -124,19 +127,20 @@ class QueueShell extends Shell {
 		if (function_exists('gc_enable')) {
 		    gc_enable();
 		}
-		$exit = false;
+		pcntl_signal(SIGTERM, array(&$this, "_exit"));
+		$this->exit = false;
 		$starttime = time();
 		$group = null;
 		if (isset($this->params['group']) && !empty($this->params['group'])) {
 			$group = $this->params['group'];
 		}
-		while (!$exit) {
+		while (!$this->exit) {
 			if($this->_verbose) {
 				$this->out('Looking for Job....');
 			}
 			$data = $this->QueuedTask->requestJob($this->getTaskConf(), $group);
 			if ($this->QueuedTask->exit === true) {
-				$exit = true;
+				$this->exit = true;
 			} else {
 				if ($data !== false) {
 					$this->out('Running Job of type "' . $data['jobtype'] . '"');
@@ -155,7 +159,7 @@ class QueueShell extends Shell {
 					}
 				} elseif (Configure::read('queue.exitwhennothingtodo')) {
 					$this->out('nothing to do, exiting.');
-					$exit = true;
+					$this->exit = true;
 				} else {
 					if($this->_verbose) {
 						$this->out('nothing to do, sleeping.');
@@ -165,10 +169,10 @@ class QueueShell extends Shell {
 				
 				// check if we are over the maximum runtime and end processing if so.
 				if (Configure::read('queue.workermaxruntime') != 0 && (time() - $starttime) >= Configure::read('queue.workermaxruntime')) {
-					$exit = true;
+					$this->exit = true;
 					$this->out('Reached runtime of ' . (time() - $starttime) . ' Seconds (Max ' . Configure::read('queue.workermaxruntime') . '), terminating.');
 				}
-				if ($exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
+				if ($this->exit || rand(0, 100) > (100 - Configure::read('queue.gcprop'))) {
 					$this->out('Performing Old job cleanup.');
 					$this->QueuedTask->cleanOldJobs();
 				}
@@ -253,6 +257,10 @@ class QueueShell extends Shell {
 	function out($str='') {
 		$str = date('Y-m-d H:i:s').' '.$str;
 		return parent::out($str);
+	}
+
+	function _exit($signal) {
+		$this->exit = true;
 	}
 
 }
