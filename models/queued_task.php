@@ -30,7 +30,7 @@ class QueuedTask extends AppModel {
 	 * @param string $reference any array
 	 * @return bool success
 	 */
-	public function createJob($jobName, $data, $notBefore = null, $group = null, $reference = null) {
+	public function createJob($jobName, $data, $notBefore = null, $group = 'default', $reference = null) {
 		
 		$data = array(
 			'jobtype' => $jobName,
@@ -56,7 +56,7 @@ class QueuedTask extends AppModel {
 	 * @param string $group Request a job from this group, (from any group if null)
 	 * @return Array Taskdata.
 	 */
-	public function requestJob($capabilities, $group = null) {
+	public function requestJob($capabilities, $group = 'default') {
 		$idlist = array();
 		$wasFetched = array();
 		
